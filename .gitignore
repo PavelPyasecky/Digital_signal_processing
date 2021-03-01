@@ -1,0 +1,6 @@
+!.gitignore
+.ipynb_checkpoints/
+.idea/
+Intro/
+Laba_2/
+
