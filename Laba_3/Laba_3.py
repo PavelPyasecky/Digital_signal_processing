@@ -7,7 +7,7 @@
 
 # ### 1. Подключение библиотек.
 
-# In[68]:
+# In[67]:
 
 
 import numpy as np
@@ -19,7 +19,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # ### 2. Получение реальной ЭКГ.
 
-# In[69]:
+# In[68]:
 
 
 from scipy.misc import electrocardiogram
@@ -28,7 +28,7 @@ ECG = electrocardiogram()
 
 # ### 3. Создание объектa рекурсивного фильтра.
 
-# In[70]:
+# In[69]:
 
 
 class RecursiveFilter:
@@ -50,85 +50,99 @@ class RecursiveFilter:
         return laba2.Signal(y)
 
 
-# ### 4. Изучение влияния скользящего усредняющего фильтра на различные виды шумов.
+# ### 4. Изучение влияния скользящего усредняющего фильтра на зашумленный ECG.
+
+# In[70]:
+
+
+ecg = laba1.Ecg(cycles=1)
+white_noise = laba1.WhiteNoise(deviation=0.1, size=ecg.size())
+harm_noise = laba1.HarmNoise(a_hn=0.1, f_d=5, f_hn=1110, n_sin=1888)
+
+ecg_wn = laba1.SumSignal(ecg, white_noise)
+ecg_hn = laba1.SumSignal(ecg, harm_noise)
+
+
+# * #### ECG
 
 # In[71]:
 
 
-ecg = laba1.Ecg(cycles=1)
-wn = laba1.WhiteNoise(deviation=0.1, size=ecg.size())
-hn = laba1.HarmNoise(a_hn=0.05, f_d=5, f_hn=60, n_sin=1888)
+ecg.print_()
+ecg_new = laba1.AveragingFilter(5).filter_(ecg)
+ecg_new.print_()
 
 
-# * #### Влияние на ECG
+# * #### ECG, зашумленный White Noise 
 
 # In[72]:
 
 
-ecg.print_()
-ecg_new = laba1.AveragingFilter(3).filter_(ecg)
-ecg_new.print_()
+ecg_wn.print_()
+ecg_wn_new = laba1.AveragingFilter(8).filter_(ecg_wn)
+ecg_wn_new.print_()
 
 
-# * #### Влияние на White Noise 
+# * #### ECG, зашумленный Harm Noise 
 
 # In[73]:
 
 
-wn.print_()
-wn_new = laba1.AveragingFilter(3).filter_(wn)
-wn_new.print_()
-
-
-# * #### Влияние на Harm Noise 
-
-# In[74]:
-
-
-hn.print_()
-hn_new = laba1.AveragingFilter(3).filter_(hn)
-hn_new.print_()
+ecg_hn.print_()
+ecg_hn_new = laba1.AveragingFilter(8).filter_(ecg_hn)
+ecg_hn_new.print_()
 
 
 # ### 5. Изучение влияния Sinc-фильтра на различные виды шумов.
 
-# In[75]:
+# In[74]:
 
 
-sinc = laba2.sinc_func(0.05, 100)
+sinc = laba2.sinc_func(0.05, 50)
 sinc.print_()
 
 
-# * #### Влияние на White Noise 
+# * #### ECG, зашумленный White Noise 
+
+# In[75]:
+
+
+conv = laba1.Convolution(sinc).signals_convolution(ecg_wn)
+ecg_wn.print_()
+conv.print_()
+
+
+# * #### ECG, зашумленный Harm Noise 
 
 # In[76]:
 
 
-conv = laba1.Convolution(sinc).signals_convolution(wn)
-wn.print_()
-conv.print_()
-
-
-# * #### Влияние на Harm Noise 
-
-# In[77]:
-
-
-hn = laba1.HarmNoise(a_hn=0.5, f_d=5, f_hn=60, n_sin=2000)
-conv = laba1.Convolution(sinc).signals_convolution(hn)
-hn.print_()
+conv = laba1.Convolution(sinc).signals_convolution(ecg_hn)
+ecg_hn.print_()
 conv.print_()
 
 
 # ### 6. Фильтрация сигнала с помощью рекурсивного фильтра.
 
+# * #### ECG, зашумленный White Noise
+
+# In[77]:
+
+
+ecg_wn.print_()
+ecg_wn_filtered = RecursiveFilter(0.2).filter_(ecg_wn)
+ecg_wn_filtered.print_()
+
+
+# * #### ECG, зашумленный Harm Noise 
+
 # In[78]:
 
 
-ecg.print_()
-ecg_filtered = RecursiveFilter(0.2).filter_(ecg)
-ecg_filtered.print_()
+ecg_hn.print_()
+ecg_hn_filtered = RecursiveFilter(0.2).filter_(ecg_hn)
+ecg_hn_filtered.print_()
 
 
 # ***
-# ### Вывод: Изучили особенности реализации алгоритмов цифровой обработки сигналов. Исследовали скользящий усредняющий фильтр, sinc-фильтр и рекурсивный фильтр НЧ.
+# ### Вывод: Изучили особенности реализации алгоритмов создания цифровых фильтров. Исследовали скользящий усредняющий фильтр, sinc-фильтр и рекурсивный фильтр НЧ.

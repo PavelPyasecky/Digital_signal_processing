@@ -163,7 +163,7 @@ class Convolution(Signal):
         for i in range(sig_size - 1):
             for j in range(h_size):
                 y[i + j] += self.h.y1[j] * x[i]
-#         y = y[h_size:sig_size]        
+#         y = y[h_size:sig_size - h_size]        
         return Signal(y)
 
 
